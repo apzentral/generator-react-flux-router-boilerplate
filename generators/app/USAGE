@@ -1,0 +1,5 @@
+Description:
+    Creates Boilerplate for React Flux with Router (It will create in the current directory!)
+
+Example:
+    yo react-flux-router-boilerplate
