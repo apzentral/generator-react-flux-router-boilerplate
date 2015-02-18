@@ -21,7 +21,7 @@ describe('react-flux-router-boilerplate:app', function() {
       if (e.code != 'ENOENT') throw e;
     }
 
-    helpers.run(path.join(__dirname, '../generators/app'))
+    helpers.run(path.join(__dirname, '../app'))
       .inDir(testFolder)
       .withOptions({
         'skip-install': true
