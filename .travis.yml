@@ -1,0 +1,6 @@
+language: node_js
+node_js:
+  - '0.10'
+before_install:
+  - currentfolder=${PWD##*/}
+  - if [ "$currentfolder" != 'generator-react-flux-router-boilerplate' ]; then cd .. && eval "mv $currentfolder generator-react-flux-router-boilerplate" && cd generator-react-flux-router-boilerplate; fi

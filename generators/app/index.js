@@ -35,14 +35,6 @@ var AppGenerator = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
-  configuring: function() {
-
-  },
-
-  default: function() {
-
-  },
-
   writing: {
 
     app: function() {
@@ -90,14 +82,6 @@ var AppGenerator = yeoman.generators.Base.extend({
       this.src.copy('LICENSE', 'LICENSE');
       this.src.copy('README.md', 'README.md');
     }
-
-  },
-
-  conflicts: function() {
-
-  },
-
-  install: function() {
 
   },
 
