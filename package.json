@@ -1,6 +1,6 @@
 {
   "name": "generator-react-flux-router-boilerplate",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Yeoman generator for a full Flux, React and Router boilerplate.",
   "license": "MIT",
   "main": "app/index.js",
