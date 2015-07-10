@@ -58,7 +58,8 @@ var AppGenerator = yeoman.generators.Base.extend({
       this.dest.mkdir('src/utilities');
       this.template('src/pages/index.html');
       this.src.copy('src/actions/RouteActions.js', 'src/actions/RouteActions.js');
-      this.src.copy('src/actions/ToDoActions.js', 'src/actions/ToDoActions.js');
+      this.src.copy('src/actions/ToDoRequestActions.js', 'src/actions/ToDoRequestActions.js');
+      this.src.copy('src/actions/ToDoResponseActions.js', 'src/actions/ToDoResponseActions.js');
       this.src.copy('src/pages/Index.jsx', 'src/pages/Index.jsx');
       this.src.copy('src/pages/Libraries.jsx', 'src/pages/Libraries.jsx');
       this.src.copy('src/pages/ToDo.jsx', 'src/pages/ToDo.jsx');

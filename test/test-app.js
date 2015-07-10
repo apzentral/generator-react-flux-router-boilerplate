@@ -42,7 +42,8 @@ describe('react-flux-router-boilerplate:app', function() {
       'README.md',
       'src/pages/index.html',
       'src/actions/RouteActions.js',
-      'src/actions/ToDoActions.js',
+      'src/actions/ToDoRequestActions.js',
+      'src/actions/ToDoResponseActions.js',
       'src/app.js',
       'src/config.js',
     ]);
