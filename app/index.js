@@ -44,7 +44,7 @@ var AppGenerator = yeoman.generators.Base.extend({
         appname: this.name
       };
       this.template('_package.json', 'package.json', context);
-      this.src.copy('_bower.json', 'bower.json', context);
+      this.template('_bower.json', 'bower.json', context);
       this.dest.mkdir('config');
       this.dest.mkdir('src');
       this.dest.mkdir('src/actions');
