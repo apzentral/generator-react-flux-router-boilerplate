@@ -1,5 +1,5 @@
 /**
- * Yeoman Generator for generator-react-flux-router-boilerplate
+ * Yeoman Generator for generator-cordova-react-flux-router-ionic
  */
 'use strict';
 
@@ -8,8 +8,11 @@ var util = require('util');
 var path = require('path');
 var yeoman = require('yeoman-generator');
 var yosay = require('yosay');
+var chalk = require('chalk');
+var cordova = require('cordova');
+var fs = require('fs');
 
-var AppGenerator = yeoman.generators.Base.extend({
+module.exports = yeoman.generators.Base.extend({
 
   initializing: function() {
     this.pkg = require('../package.json');
@@ -28,6 +31,69 @@ var AppGenerator = yeoman.generators.Base.extend({
       name: 'name',
       message: 'Your project name',
       default: this.appname
+    },{
+      type: 'input',
+      name: 'package',
+      message: 'What would you like the package to be?',
+      default: 'com.example.' + this.appname
+    }, {
+      type: 'checkbox',
+      name: 'platforms',
+      message: 'What platforms would you like to add support for?',
+      choices: [{
+        name: 'browser',
+        value: 'browser',
+        checked: true
+      }, {
+        name: 'ios',
+        value: 'ios',
+        checked: true
+      }, {
+        name: 'android',
+        value: 'android',
+        checked: true
+      }]
+    }, {
+      type: 'checkbox',
+      name: 'plugins',
+      message: 'What plugins would you like to include by default?',
+      choices: [{
+        name: 'Console',
+        value: 'cordova-plugin-console',
+        checked: true
+      }, {
+        name: 'Device',
+        value: 'cordova-plugin-device',
+        checked: true
+      }, {
+        name: 'Dialogs',
+        value: 'cordova-plugin-dialogs',
+        checked: true
+      }, {
+        name: 'Geo Location',
+        value: 'cordova-plugin-geolocation',
+        checked: true
+      }, {
+        name: 'In App Browser',
+        value: 'cordova-plugin-inappbrowser',
+        checked: true
+      }, {
+        name: 'Splash Screen',
+        value: 'cordova-plugin-splashscreen',
+        checked: true
+      }, {
+        name: 'Network Information',
+        value: 'cordova-plugin-network-information',
+        checked: true
+      }, {
+        name: 'Gap Reload',
+        value: 'pro.fing.cordova.gapreload',
+        checked: true
+      }, {
+        name: 'Crosswalk Webview',
+        value: 'cordova-plugin-crosswalk-webview',
+        checked: true
+      }]
     }];
     this.prompt(prompts, function(props) {
       this.name = props.name;
@@ -36,6 +102,63 @@ var AppGenerator = yeoman.generators.Base.extend({
   },
 
   writing: {
+
+    cordova: function() {
+      if (this.arguments.indexOf('testing') >= 0) {
+        return
+      }
+      var done = this.async();
+      try {
+        console.log('Creating project', chalk.cyan(process.cwd()), chalk.cyan(this.props.package), chalk.cyan(this.appname))
+        cordova.create(process.cwd(), this.props.package, this.appname, done);
+      } catch (err) {
+        console.error('Failed to create cordova project', err);
+        process.exit(1);
+      }
+    },
+
+    www: function() {
+      this.fs.copyTpl(
+        this.templatePath('www'),
+        this.destinationPath('www'), {
+          appname: this.appname,
+          name: this.user.git.name(),
+          livereload: this.livereload
+        }
+      )
+    },
+
+    platforms: function() {
+      if (this.props.platforms.length === 0) {
+        return
+      }
+      var done = this.async()
+      try {
+        async.eachSeries(this.props.platforms, function(platform, cb) {
+          console.log('Adding platform', chalk.cyan(platform))
+          cordova.platform('add', platform, cb)
+        }, done)
+      } catch(err) {
+        console.error('Failed to add platfoms', err)
+        process.exit(1)
+      }
+    },
+
+    plugins: function() {
+      if (this.props.plugins.length === 0) {
+        return
+      }
+      var done = this.async()
+      try {
+        async.eachSeries(this.props.plugins, function(plugin, cb) {
+          console.log('Adding plugin', chalk.cyan(plugin))
+          cordova.plugin('add', plugin, cb)
+        }, done)
+      } catch(err) {
+        console.error('Failed to add plugins', err)
+        process.exit(1)
+      }
+    },
 
     app: function() {
       var context = {
@@ -92,4 +215,3 @@ var AppGenerator = yeoman.generators.Base.extend({
 
 });
 
-module.exports = AppGenerator;
