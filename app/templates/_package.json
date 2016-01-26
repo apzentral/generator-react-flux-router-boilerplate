@@ -1,5 +1,5 @@
 {
-  "name": "<%= _.slugify(_.humanize(appname)) %>",
+  "name": "<%= appname %>",
   "version": "1.0.0",
   "license": "MIT",
   "engines": {

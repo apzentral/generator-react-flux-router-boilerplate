@@ -11,8 +11,10 @@ var yosay = require('yosay');
 var chalk = require('chalk');
 var cordova = require('cordova');
 var fs = require('fs');
+var fsextra = require('fs-extra');
+var async = require('async');
 
-module.exports = yeoman.generators.Base.extend({
+module.exports = yeoman.Base.extend({
 
   initializing: function() {
     this.pkg = require('../package.json');
@@ -23,7 +25,7 @@ module.exports = yeoman.generators.Base.extend({
 
     // Have Yeoman greet the user.
     this.log(yosay(
-      'Welcome to the generator for creating React Flux with Router Boilerplate!'
+      'Welcome to the generator for creating Cordova React Flux with Router and Ionic!'
     ));
 
     var prompts = [{
@@ -96,7 +98,10 @@ module.exports = yeoman.generators.Base.extend({
       }]
     }];
     this.prompt(prompts, function(props) {
-      this.name = props.name;
+      this.props = props;
+      this.rootDir = process.cwd() + "/" + props.name;
+      this.cordovaDir = this.rootDir + "/" + "cordova-app";
+      this.clientDir = this.rootDir + "/" + "client";
       done();
     }.bind(this));
   },
@@ -109,31 +114,56 @@ module.exports = yeoman.generators.Base.extend({
       }
       var done = this.async();
       try {
-        console.log('Creating project', chalk.cyan(process.cwd()), chalk.cyan(this.props.package), chalk.cyan(this.appname))
-        cordova.create(process.cwd(), this.props.package, this.appname, done);
+        console.log('Creating Cordova project', chalk.cyan(this.cordovaDir), chalk.cyan(this.props.package), chalk.cyan(this.props.name));
+        fsextra.mkdirs(this.rootDir);
+        process.chdir(this.rootDir);
+        cordova.create(this.cordovaDir, this.props.package, this.props.name, done);
       } catch (err) {
         console.error('Failed to create cordova project', err);
         process.exit(1);
       }
     },
 
-    www: function() {
-      this.fs.copyTpl(
-        this.templatePath('www'),
-        this.destinationPath('www'), {
-          appname: this.appname,
-          name: this.user.git.name(),
-          livereload: this.livereload
+    cleanupCordovaApp: function () {
+      var done = this.async();
+      var dirName = this.cordovaDir + '/www';
+
+      fsextra.remove(dirName + '/css', function (err) {
+        if (err) {
+          return console.error(err);
         }
-      )
+      });
+      fsextra.remove(dirName + '/img', function (err) {
+        if (err) {
+          return console.error(err);
+        }
+      });
+      fsextra.remove(dirName + '/js', function (err) {
+        if (err) {
+          return console.error(err);
+        }
+      });
+      fsextra.remove(dirName + '/index.html', function (err) {
+        if (err) {
+          return console.error(err);
+        }
+      });
+
+      console.log('Default cordova app removed');
+
+      done();
+
     },
 
     platforms: function() {
       if (this.props.platforms.length === 0) {
         return
       }
-      var done = this.async()
+      var done = this.async();
+
       try {
+        console.log('Adding platforms...');
+        process.chdir(this.cordovaDir);
         async.eachSeries(this.props.platforms, function(platform, cb) {
           console.log('Adding platform', chalk.cyan(platform))
           cordova.platform('add', platform, cb)
@@ -144,73 +174,53 @@ module.exports = yeoman.generators.Base.extend({
       }
     },
 
-    plugins: function() {
-      if (this.props.plugins.length === 0) {
-        return
-      }
-      var done = this.async()
-      try {
-        async.eachSeries(this.props.plugins, function(plugin, cb) {
-          console.log('Adding plugin', chalk.cyan(plugin))
-          cordova.plugin('add', plugin, cb)
-        }, done)
-      } catch(err) {
-        console.error('Failed to add plugins', err)
-        process.exit(1)
-      }
-    },
+    //plugins: function() {
+    //  if (this.props.plugins.length === 0) {
+    //    return
+    //  }
+    //  var done = this.async()
+    //  try {
+    //    async.eachSeries(this.props.plugins, function(plugin, cb) {
+    //      console.log('Adding plugin', chalk.cyan(plugin), process.cwd());
+    //      cordova.plugin('add', plugin, cb)
+    //    }, done)
+    //  } catch(err) {
+    //    console.error('Failed to add plugins', err)
+    //    process.exit(1)
+    //  }
+    //},
 
     app: function() {
       var context = {
-        title: this.name,
+        title: this.props.name,
         description: 'React, Flux with Router application',
-        appname: this.name
+        appname: this.props.name
       };
-      this.template('_package.json', 'package.json', context);
-      this.template('_bower.json', 'bower.json', context);
-      this.dest.mkdir('config');
-      this.dest.mkdir('src');
-      this.dest.mkdir('src/actions');
-      this.dest.mkdir('src/assets');
-      this.dest.mkdir('src/components');
-      this.dest.mkdir('src/constants');
-      this.dest.mkdir('src/dispatcher');
-      this.dest.mkdir('src/layouts');
-      this.dest.mkdir('src/pages');
-      this.dest.mkdir('src/stores');
-      this.dest.mkdir('src/utilities');
-      this.template('src/pages/index.html');
-      this.src.copy('src/actions/RouteActions.js', 'src/actions/RouteActions.js');
-      this.src.copy('src/actions/ToDoRequestActions.js', 'src/actions/ToDoRequestActions.js');
-      this.src.copy('src/actions/ToDoResponseActions.js', 'src/actions/ToDoResponseActions.js');
-      this.src.copy('src/pages/Index.jsx', 'src/pages/Index.jsx');
-      this.src.copy('src/pages/Libraries.jsx', 'src/pages/Libraries.jsx');
-      this.src.copy('src/pages/ToDo.jsx', 'src/pages/ToDo.jsx');
-      this.directory('src/assets/', 'src/assets/');
-      this.directory('src/components/', 'src/components/');
-      this.directory('src/constants/', 'src/constants/');
-      this.directory('src/dispatcher/', 'src/dispatcher/');
-      this.directory('src/layouts/', 'src/layouts/');
-      this.directory('src/stores/', 'src/stores/');
-      this.directory('src/utilities/', 'src/utilities/');
-      this.directory('config/', 'config/');
-      this.src.copy('src/app.js', 'src/app.js');
-      this.src.copy('src/config.js', 'src/config.js');
+      console.log('Begin client side app build ...', this.clientDir);
+
+
+      this.template(this.templatePath('src/pages/index.html'),this.clientDir + '/index.html');
+      this.template(this.templatePath('_package.json'), this.clientDir + '/package.json', context);
+      this.template(this.templatePath('_bower.json'), this.clientDir + '/bower.json', context);
+      this.directory(this.templatePath('src'), this.clientDir);
+
     },
 
     projectfiles: function() {
-      this.src.copy('editorconfig', '.editorconfig');
-      this.src.copy('jshintrc', '.jshintrc');
-      this.src.copy('_.gitignore', '.gitignore');
-      this.src.copy('gulpfile.js', 'gulpfile.js');
-      this.src.copy('LICENSE', 'LICENSE');
-      this.src.copy('README.md', 'README.md');
+      console.log('projectfiles ...', this.clientDir);
+      this.template(this.templatePath('editorconfig'), '.editorconfig');
+      this.template(this.templatePath('jshintrc'), 'client/.jshintrc');
+      this.template(this.templatePath('_.gitignore'), '.gitignore');
+      this.template(this.templatePath('gulpfile.js'), 'client/gulpfile.js');
+      this.template(this.templatePath('LICENSE'), 'LICENSE');
+      this.template(this.templatePath('README.md'), 'README.md');
     }
 
   },
 
   end: function() {
-    this.installDependencies();
+    //process.chdir(this.clientDir);
+    //this.installDependencies();
   }
 
 });
