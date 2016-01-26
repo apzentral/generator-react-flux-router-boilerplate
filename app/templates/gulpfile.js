@@ -17,6 +17,7 @@ var webpack = require('webpack');
 var browserSync = require('browser-sync');
 var pagespeed = require('psi');
 var argv = require('minimist')(process.argv.slice(2));
+var cordova = require('cordova');
 
 // Settings
 var DEST = './build'; // The build output folder
